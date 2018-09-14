@@ -39,10 +39,10 @@ parser.add_argument('url', action="store", help="mandatory uniform resource loca
 
 #Data Command (optional)
 parser.add_argument('-d', dest="data", action="store", metavar="inline-data", help="associates inline data to the body HTTP POST")
-parser.add_argument('-h', dest="header", action="store", metavar="inline-data", help="associates headers to HTTP Request with the format")
 
 #Header Command (optional)
-#parser.add_argument('-h', dest="header", action="store", metavar="inline-data", help="Associates an inline data to the body HTTP POST")
+parser.add_argument('-h', dest="header", action="append", metavar="inline-data", help="associates headers to HTTP Request with the format")
+#httpc post -h Content-Type:application/json --d '{"Assignment": 1}' http://httpbin.org/post
 
 #Verbose Command (optional)
 parser.add_argument('-v','--verbose', action="store_true")
@@ -70,17 +70,23 @@ if(args.mode == 'get'):
     message += 'Connection: close\r\n'
     message += '\r\n'
     connect()
+#httpc post -h Content-Type:application/json --d '{"Assignment": 1}' http://httpbin.org/post
 
 #Post Request
 if(args.mode == 'post'):
     data = args.data
     data_bytes = data.encode()
     message  = 'POST /post HTTP/1.1\r\n'
-    message += 'Content-length:'+str(len(data_bytes))+'\r\n'
+    if(args.header):
+        for x in range(len(args.header)):
+            message+=args.header[x]+'\r\n'
+    else:
+        message += 'Content-Length:'+str(len(data_bytes))+'\r\n'
+        message += 'Content-Type:application/json\r\n'
     message += 'Host:' +server+':'+str(port)+'\r\n'
     message += 'Connection: close\r\n\r\n'
     message += args.data+'\r\n'
     connect()
 
 
-
+print(args.header)
