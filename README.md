@@ -13,3 +13,6 @@ Implementation of GET and HTTP POST requests similar to cURL, using TCP Sockets 
 
 ### Post with multiple inline headers
 ./httpc.py post -d "hello_world" -h Content-Type:application/json -h Content-length:10  http://httpbin.org/post
+
+### Post that associates the content of a file to the body HTTP POST 
+./httpc.py post -f "data.txt" -h Content-Type:application/json  http://httpbin.org/post
