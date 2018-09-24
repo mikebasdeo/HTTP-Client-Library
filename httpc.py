@@ -20,29 +20,33 @@ def connect():
         sys.stdout.write(response.decode("utf-8"))
     print(sock.recv(4096).decode("utf-8"))
 
-# Create Parser to pull out url from the command line
+# create parser to pull out url from the command line
 parser = argparse.ArgumentParser(description='Mike Basdeo - 26788815 \r\nhttpc is a curl-like application but supports HTTP protocol only', add_help=False, formatter_class=RawTextHelpFormatter)
 parser.add_argument('--help', action='help', help='show this help message and exit')
 
+# get/post commands are optional(either/or) and don't have dashes
 parser.add_argument('mode', choices=['get','post'], help="Executes a HTTP GET or POST request for a given URL with inline data")
 
-#positional requirement (mandatory no dash)
+# positional requirement (mandatory no dash)
 parser.add_argument('url', action="store", help="mandatory uniform resource locator to perform requet on")
 
-#Data Command (optional)
+# data command (optional)
 parser.add_argument('-d', dest="data", action="store", metavar="inline-data", help="associates inline data to the body HTTP POST")
-#Header Command (optional)
+# header command (optional)
 parser.add_argument('-h', dest="header", action="store", metavar="inline-data", help="associates headers to HTTP Request with the format")
 
-#Read From File Command (optional)
+# read from file command (optional)
 parser.add_argument('-f', dest="file", action="store", metavar="inline-data", help="associates the content of a file to the body HTTP POST")
 
-#Verbose Command (optional)
+# output to file(optional)
+parser.add_argument('-o', dest="output", action="store", metavar="inline-data", help="stores terminal output in a file")
+
+# verbose command (optional)
 parser.add_argument('-v','--verbose', action="store_true")
 
 args = parser.parse_args()
 
-#chop up the found url using regex
+# chop up the found url using regex
 matcher = re.search(url_regex, args.url)
 
 server = matcher.group(3)
@@ -52,7 +56,7 @@ if(matcher.group(4)):
     query_param = matcher.group(4)
 port = 80
 
-#Get Request
+# get request
 if(args.mode == 'get'):
     message  = 'GET /'+query_param+' HTTP/1.1\r\n'
     message += 'Host:' +server+':'+str(port)+'\r\n'
@@ -60,7 +64,7 @@ if(args.mode == 'get'):
     message += '\r\n'
     connect()
 
-#Post Request
+# post request
 if(args.mode == 'post'):
     if(args.data):
         data = args.data
@@ -76,6 +80,14 @@ if(args.mode == 'post'):
     message += 'Host:' +server+':'+str(port)+'\r\n'
     message += 'Connection: close\r\n\r\n'
     message += data+'\r\n'
+
+# output to file
+if(args.output):
+    f = open(args.output, 'w')
+    sys.stdout = f
+    connect()
+    f.close()
+else:
     connect()
 
 
